@@ -1,4 +1,13 @@
-"scripts": {
-  "start": "node index.js",
-  "dev": "set NODE_ENV=development&& node index.js"
+{
+  "name": "week03",
+  "version": "1.0.0",
+  "description": "Week 3 Node.js runtime configuration assignment",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "set NODE_ENV=development&& node index.js"
+  },
+  "keywords": [],
+  "author": "Jacob Hill",
+  "license": "ISC"
 }
