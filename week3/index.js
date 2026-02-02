@@ -5,7 +5,7 @@ console.log("Week 3");
 console.log("--------------------------");
 
 // Runtime Information
-console.log("Node Version:", v24.11.0);
+console.log("Node Version:", process.version);
 console.log("Current Date/Time:", new Date());
 console.log("--------------------------");
 
