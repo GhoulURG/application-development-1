@@ -6,7 +6,7 @@ console.log("--------------------------");
 
 // Runtime Information
 console.log("Node Version:", v24.11.0);
-console.log("Current Date/Time:", 02/01/2026());
+console.log("Current Date/Time:", new Date());
 console.log("--------------------------");
 
 // Configuration via Environment Variables
@@ -17,7 +17,7 @@ const environment = process.env.NODE_ENV || "development";
 const appConfig = {
   port: port,
   environment: environment,
-  startedAt: 02/01/2026()
+  startedAt: new Date()
 };
 
 // Print formatted JSON
