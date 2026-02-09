@@ -4,7 +4,9 @@ function calculateTotal(price, quantity) {
 
 function applyDiscount(total) {
   if (total > 100) {
+    const discount = 10;
     return total - discount;
+    // ERROR: ReferenceError on this line because "discount" is not defined anywhere
   }
   return total;
 }
