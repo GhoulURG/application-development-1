@@ -1,21 +1,17 @@
 const express = require("express");
 const app = express();
 
+const timer = require("./middleware/timer");
+
 const postsRoutes = require("./routes/posts");
 const usersRoutes = require("./routes/users");
-const logger = require("./middleware/logger");
 
-// JSON parsing
 app.use(express.json());
+app.use(timer);
 
-// Logger middleware
-app.use(logger);
-
-// Routes
 app.use("/posts", postsRoutes);
 app.use("/users", usersRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     error: {
@@ -26,6 +22,7 @@ app.use((req, res) => {
 });
 
 const PORT = 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
