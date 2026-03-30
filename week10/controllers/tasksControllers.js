@@ -1,70 +1,114 @@
-let tasks = [];
-let currentId = 1;
+const pool = require("../db");
 
-exports.getAllTasks = (req, res) => {
-    res.json({ data: tasks });
+// GET /tasks
+exports.getAllTasks = async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM tasks");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({
+      error: { code: "SERVER_ERROR", message: err.message }
+    });
+  }
 };
 
-exports.getTaskById = (req, res) => {
-    const task = tasks.find(t => t.id === parseInt(req.params.id));
+// GET /tasks/:id
+exports.getTaskById = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM tasks WHERE id = ?",
+      [req.params.id]
+    );
 
-    if (!task) {
-        return res.status(404).json({
-            error: {
-                code: "NOT_FOUND",
-                message: "Task not found"
-            }
-        });
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Task not found" }
+      });
     }
 
-    res.json(task);
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({
+      error: { code: "SERVER_ERROR", message: err.message }
+    });
+  }
 };
 
-exports.createTask = (req, res) => {
-    const { title, description, completed } = req.body;
+// POST /tasks
+exports.createTask = async (req, res) => {
+  const { title, status, project_id } = req.body;
 
-    const newTask = {
-        id: currentId++,
-        title,
-        description,
-        completed
-    };
+  if (!title || !status || !project_id) {
+    return res.status(400).json({
+      error: {
+        code: "INVALID_INPUT",
+        message: "Title, status, and project_id are required"
+      }
+    });
+  }
 
-    tasks.push(newTask);
+  try {
+    const [result] = await pool.query(
+      "INSERT INTO tasks (title, status, project_id) VALUES (?, ?, ?)",
+      [title, status, project_id]
+    );
 
-    res.status(201).json(newTask);
+    res.status(201).json({
+      id: result.insertId,
+      title,
+      status,
+      project_id
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: { code: "SERVER_ERROR", message: err.message }
+    });
+  }
 };
 
-exports.updateTask = (req, res) => {
-    const task = tasks.find(t => t.id === parseInt(req.params.id));
+// PATCH /tasks/:id
+exports.updateTask = async (req, res) => {
+  const { title, status } = req.body;
+  const { id } = req.params;
 
-    if (!task) {
-        return res.status(404).json({
-            error: {
-                code: "NOT_FOUND",
-                message: "Task not found"
-            }
-        });
+  try {
+    const [result] = await pool.query(
+      "UPDATE tasks SET title = ?, status = ? WHERE id = ?",
+      [title, status, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Task not found" }
+      });
     }
 
-    Object.assign(task, req.body);
-
-    res.json(task);
+    res.json({ message: "Task updated" });
+  } catch (err) {
+    res.status(500).json({
+      error: { code: "SERVER_ERROR", message: err.message }
+    });
+  }
 };
 
-exports.deleteTask = (req, res) => {
-    const index = tasks.findIndex(t => t.id === parseInt(req.params.id));
+// DELETE /tasks/:id
+exports.deleteTask = async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      "DELETE FROM tasks WHERE id = ?",
+      [req.params.id]
+    );
 
-    if (index === -1) {
-        return res.status(404).json({
-            error: {
-                code: "NOT_FOUND",
-                message: "Task not found"
-            }
-        });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Task not found" }
+      });
     }
-
-    tasks.splice(index, 1);
 
     res.json({ message: "Task deleted" });
+  } catch (err) {
+    res.status(500).json({
+      error: { code: "SERVER_ERROR", message: err.message }
+    });
+  }
 };
